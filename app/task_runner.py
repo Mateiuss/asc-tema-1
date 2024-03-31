@@ -50,17 +50,18 @@ class TaskRunner(Thread):
             # Repeat until graceful_shutdown
 
             # Wait for a job to be available
-            (job_id, request_json, data, work) = self.get_job()
+            (job_id, request_json, work) = self.get_job()
 
+            # Shutdown called
             if job_id is None:
                 break
 
             # Execute the job
-            result = work(request_json, data)
-
-            # Mark the job as done
-            self.mark_job_done(job_id)
+            result = work(request_json)
 
             # Save the result to disk
             with open(f"job_{job_id}.json", "w") as f:
                 f.write(json.dumps(result))
+
+            # Mark the job as done
+            self.mark_job_done(job_id)

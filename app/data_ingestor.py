@@ -26,3 +26,75 @@ class DataIngestor:
             'Percent of adults who achieve at least 300 minutes a week of moderate-intensity aerobic physical activity or 150 minutes a week of vigorous-intensity aerobic activity (or an equivalent combination)',
             'Percent of adults who engage in muscle-strengthening activities on 2 or more days a week',
         ]
+
+    def state_mean(self, request_json):
+        state = request_json['state']
+        question = request_json['question']
+        state_data = [row for row in self.data if row['LocationDesc'] == state and row['Question'] == question]
+
+        if len(state_data) == 0:
+            return None
+        
+        return {state: sum([float(row['Data_Value']) for row in state_data]) / len(state_data)}
+    
+    def states_mean(self, request_json):
+        question = request_json['question']
+        states = set([row['LocationDesc'] for row in self.data if row['Question'] == question])
+
+        states_mean = {}
+
+        for state in states:
+            request = {'state': state, 'question': question}
+
+            state_mean = self.state_mean(request)
+            states_mean.update(state_mean)
+
+        return states_mean
+
+    def best5(self, request_json):
+        question = request_json['question']
+        best_is_max = question in self.questions_best_is_max
+        
+        states_mean = self.states_mean(request_json)
+        sorted_states = sorted(states_mean.items(), key=lambda x: x[1], reverse=best_is_max)
+
+        return dict(sorted_states[:5])
+    
+    def worst5(self, request_json):
+        question = request_json['question']
+        best_is_min = question in self.questions_best_is_min
+        
+        states_mean = self.states_mean(request_json)
+        sorted_states = sorted(states_mean.items(), key=lambda x: x[1], reverse=best_is_min)
+
+        return dict(sorted_states[:5])
+    
+    def global_mean(self, request_json):
+        question = request_json['question']
+        question_data = [row for row in self.data if row['Question'] == question]
+
+        if len(question_data) == 0:
+            return None
+        
+        return {'global_mean': sum([float(row['Data_Value']) for row in question_data]) / len(question_data)}
+    
+    def state_diff_from_mean(self, request_json):
+        question = request_json['question']
+        state = request_json['state']
+
+        global_mean = self.global_mean({'question': question})
+        global_mean = global_mean['global_mean']
+
+        state_mean = self.state_mean({'state': state, 'question': question})
+        state_mean = state_mean[state]
+
+        return {state: global_mean - state_mean}
+    
+    def diff_from_mean(self, request_json):
+        question = request_json['question']
+        global_mean = self.global_mean({'question': question})
+        global_mean = global_mean['global_mean']
+
+        states_mean = self.states_mean({'question': question})
+
+        return {state: global_mean - state_mean for state, state_mean in states_mean.items()}

@@ -41,57 +41,40 @@ def get_response(job_id):
     if int(job_id) in webserver.tasks_runner.done_jobs:
         with open(f"job_{job_id}.json", "r") as f:
             res = json.load(f)
-            print(f"Returning {res}")
             return jsonify({
                 'status': 'done',
                 'data': res
             })
-        
-    print(f"Returning running")
 
     # If not, return running status
     return jsonify({'status': 'running'})
 
 @webserver.route('/api/states_mean', methods=['POST'])
 def states_mean_request():
-    # Get request data
-    data = request.json
-    print(f"Got request {data}")
+    if webserver.tasks_runner.graceful_shutdown:
+        return jsonify({"status": "shutdown"})
 
-    # TODO
-    # Register job. Don't wait for task to finish
-    # Increment job_id counter
-    # Return associated job_id
+    webserver.tasks_runner.task_queue.put((webserver.job_counter,
+                                           request.get_json(),
+                                           lambda request_json: webserver.data_ingestor.states_mean(request_json)))
+    webserver.tasks_runner.task_queue_semaphore.release()
     
+    response = {"job_id": webserver.job_counter}
+    webserver.job_counter += 1
 
-    return jsonify({"status": "NotImplemented"})
+    return jsonify(response)
 
 @webserver.route('/api/state_mean', methods=['POST'])
 def state_mean_request():
-    # TODO
-    # Get request data
-    # Register job. Don't wait for task to finish
-    # Increment job_id counter
-    # Return associated job_id
-    def state_mean(request_json, data):
-        state = request_json['state']
-        question = request_json['question']
-        state_data = [row for row in data if row['LocationDesc'] == state and row['Question'] == question]
-
-        if len(state_data) == 0:
-            return None
-        
-        return {state: sum([float(row['Data_Value']) for row in state_data]) / len(state_data)}
-
-    request_json = request.get_json()
-    webserver.tasks_runner.task_queue.put((webserver.job_counter, request_json, webserver.data_ingestor.data, lambda request_json, data: state_mean(request_json, data)))
-    webserver.tasks_runner.task_queue_semaphore.release()
-
     if webserver.tasks_runner.graceful_shutdown:
         return jsonify({"status": "shutdown"})
+
+    webserver.tasks_runner.task_queue.put((webserver.job_counter,
+                                            request.get_json(),
+                                            lambda request_json: webserver.data_ingestor.state_mean(request_json)))
+    webserver.tasks_runner.task_queue_semaphore.release()
     
     response = {"job_id": webserver.job_counter}
-
     webserver.job_counter += 1
 
     return jsonify(response)
@@ -99,53 +82,78 @@ def state_mean_request():
 
 @webserver.route('/api/best5', methods=['POST'])
 def best5_request():
-    # TODO
-    # Get request data
-    # Register job. Don't wait for task to finish
-    # Increment job_id counter
-    # Return associated job_id
+    if webserver.tasks_runner.graceful_shutdown:
+        return jsonify({"status": "shutdown"})
+    
+    webserver.tasks_runner.task_queue.put((webserver.job_counter,
+                                            request.get_json(),
+                                            lambda request_json: webserver.data_ingestor.best5(request_json)))
+    webserver.tasks_runner.task_queue_semaphore.release()
 
-    return jsonify({"status": "NotImplemented"})
+    response = {"job_id": webserver.job_counter}
+    webserver.job_counter += 1
+
+    return jsonify(response)
 
 @webserver.route('/api/worst5', methods=['POST'])
 def worst5_request():
-    # TODO
-    # Get request data
-    # Register job. Don't wait for task to finish
-    # Increment job_id counter
-    # Return associated job_id
+    if webserver.tasks_runner.graceful_shutdown:
+        return jsonify({"status": "shutdown"})
+    
+    webserver.tasks_runner.task_queue.put((webserver.job_counter,
+                                           request.get_json(),
+                                           lambda request_json: webserver.data_ingestor.worst5(request_json)))
+    webserver.tasks_runner.task_queue_semaphore.release()
 
-    return jsonify({"status": "NotImplemented"})
+    response = {"job_id": webserver.job_counter}
+    webserver.job_counter += 1
+
+    return jsonify(response)
 
 @webserver.route('/api/global_mean', methods=['POST'])
 def global_mean_request():
-    # TODO
-    # Get request data
-    # Register job. Don't wait for task to finish
-    # Increment job_id counter
-    # Return associated job_id
+    if webserver.tasks_runner.graceful_shutdown:
+        return jsonify({"status": "shutdown"})
+    
+    webserver.tasks_runner.task_queue.put((webserver.job_counter,
+                                            request.get_json(),
+                                            lambda request_json: webserver.data_ingestor.global_mean(request_json)))
+    webserver.tasks_runner.task_queue_semaphore.release()
 
-    return jsonify({"status": "NotImplemented"})
+    response = {"job_id": webserver.job_counter}
+    webserver.job_counter += 1
+
+    return jsonify(response)
 
 @webserver.route('/api/diff_from_mean', methods=['POST'])
 def diff_from_mean_request():
-    # TODO
-    # Get request data
-    # Register job. Don't wait for task to finish
-    # Increment job_id counter
-    # Return associated job_id
+    if webserver.tasks_runner.graceful_shutdown:
+        return jsonify({"status": "shutdown"})
+    
+    webserver.tasks_runner.task_queue.put((webserver.job_counter,
+                                            request.get_json(),
+                                            lambda request_json: webserver.data_ingestor.diff_from_mean(request_json)))
+    webserver.tasks_runner.task_queue_semaphore.release()
 
-    return jsonify({"status": "NotImplemented"})
+    response = {"job_id": webserver.job_counter}
+    webserver.job_counter += 1
+
+    return jsonify(response)
 
 @webserver.route('/api/state_diff_from_mean', methods=['POST'])
 def state_diff_from_mean_request():
-    # TODO
-    # Get request data
-    # Register job. Don't wait for task to finish
-    # Increment job_id counter
-    # Return associated job_id
+    if webserver.tasks_runner.graceful_shutdown:
+        return jsonify({"status": "shutdown"})
+    
+    webserver.tasks_runner.task_queue.put((webserver.job_counter,
+                                             request.get_json(),
+                                             lambda request_json: webserver.data_ingestor.state_diff_from_mean(request_json)))
+    webserver.tasks_runner.task_queue_semaphore.release()
 
-    return jsonify({"status": "NotImplemented"})
+    response = {"job_id": webserver.job_counter}
+    webserver.job_counter += 1
+
+    return jsonify(response)
 
 @webserver.route('/api/mean_by_category', methods=['POST'])
 def mean_by_category_request():
@@ -159,13 +167,18 @@ def mean_by_category_request():
 
 @webserver.route('/api/state_mean_by_category', methods=['POST'])
 def state_mean_by_category_request():
-    # TODO
-    # Get request data
-    # Register job. Don't wait for task to finish
-    # Increment job_id counter
-    # Return associated job_id
+    if webserver.tasks_runner.graceful_shutdown:
+        return jsonify({"status": "shutdown"})
+    
+    webserver.tasks_runner.task_queue.put((webserver.job_counter,
+                                            request.get_json(),
+                                            lambda request_json: webserver.data_ingestor.state_mean_by_category(request_json)))
+    webserver.tasks_runner.task_queue_semaphore.release()
 
-    return jsonify({"status": "NotImplemented"})
+    response = {"job_id": webserver.job_counter}
+    webserver.job_counter += 1
+
+    return jsonify(response)
 
 # You can check localhost in your browser to see what this displays
 @webserver.route('/')
