@@ -102,15 +102,12 @@ class DataIngestor:
         state = request_json['state']
 
         stratification_categories = {}
-        ans = {}
 
         for row in self.data:
             if row['Question'] == question and row['LocationDesc'] == state:
                 category = row['StratificationCategory1']
 
                 if category == '':
-                    print('Category i   s empty')
-                    ans[('', '')] = row['Data_Value']
                     continue
 
                 if category not in stratification_categories:
@@ -126,6 +123,8 @@ class DataIngestor:
         for category in stratification_categories:
             for stratification in stratification_categories[category]:
                 stratification_categories[category][stratification] = sum([float(x) for x in stratification_categories[category][stratification]]) / len(stratification_categories[category][stratification])
+
+        ans = {}
 
         for category in stratification_categories:
             for stratification in stratification_categories[category]:
