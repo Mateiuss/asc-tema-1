@@ -29,6 +29,17 @@ class ThreadPool:
             thread = TaskRunner(self)
             thread.start()
 
+def key_to_string(data: dict) -> dict:
+        ans = {}
+
+        for (k, v) in data.items():
+            if isinstance(v, dict):
+                ans[str(k)] = key_to_string(v)
+            else:
+                ans[str(k)] = v
+
+        return ans
+
 class TaskRunner(Thread):
     def __init__(self, thread_pool: ThreadPool):
         # TODO: init necessary data structures
@@ -56,8 +67,8 @@ class TaskRunner(Thread):
             if job_id is None:
                 break
 
-            # Execute the job
-            result = work(request_json)
+            # Execute the job and turn keys into strings
+            result = key_to_string(work(request_json))
 
             # Save the result to disk
             with open(f"job_{job_id}.json", "w") as f:

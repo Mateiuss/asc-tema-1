@@ -1,5 +1,3 @@
-import os
-import json
 import csv
 
 class DataIngestor:
@@ -98,3 +96,54 @@ class DataIngestor:
         states_mean = self.states_mean({'question': question})
 
         return {state: global_mean - state_mean for state, state_mean in states_mean.items()}
+
+    def state_mean_by_category(self, request_json):
+        question = request_json['question']
+        state = request_json['state']
+
+        stratification_categories = {}
+        ans = {}
+
+        for row in self.data:
+            if row['Question'] == question and row['LocationDesc'] == state:
+                category = row['StratificationCategory1']
+
+                if category == '':
+                    print('Category i   s empty')
+                    ans[('', '')] = row['Data_Value']
+                    continue
+
+                if category not in stratification_categories:
+                    stratification_categories[category] = {}
+
+                stratification = row['Stratification1']
+
+                if stratification not in stratification_categories[category]:
+                    stratification_categories[category][stratification] = [row['Data_Value']]
+                else:
+                    stratification_categories[category][stratification].append(row['Data_Value'])
+
+        for category in stratification_categories:
+            for stratification in stratification_categories[category]:
+                stratification_categories[category][stratification] = sum([float(x) for x in stratification_categories[category][stratification]]) / len(stratification_categories[category][stratification])
+
+        for category in stratification_categories:
+            for stratification in stratification_categories[category]:
+                ans[(category, stratification)] = stratification_categories[category][stratification]
+
+        return {state: ans}
+    
+    def mean_by_category(self, request_json):
+        question = request_json['question']
+        states = set([row['LocationDesc'] for row in self.data if row['Question'] == question])
+
+        ans = {}
+
+        for state in states:
+            request = {'state': state, 'question': question}
+            state_mean_by_category = self.state_mean_by_category(request)
+            
+            for (category, stratification), value in state_mean_by_category[state].items():
+                ans[(state, category, stratification)] = value
+
+        return ans

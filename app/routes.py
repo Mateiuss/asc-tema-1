@@ -157,13 +157,18 @@ def state_diff_from_mean_request():
 
 @webserver.route('/api/mean_by_category', methods=['POST'])
 def mean_by_category_request():
-    # TODO
-    # Get request data
-    # Register job. Don't wait for task to finish
-    # Increment job_id counter
-    # Return associated job_id
+    if webserver.tasks_runner.graceful_shutdown:
+        return jsonify({"status": "shutdown"})
+    
+    webserver.tasks_runner.task_queue.put((webserver.job_counter,
+                                            request.get_json(),
+                                            lambda request_json: webserver.data_ingestor.mean_by_category(request_json)))
+    webserver.tasks_runner.task_queue_semaphore.release()
 
-    return jsonify({"status": "NotImplemented"})
+    response = {"job_id": webserver.job_counter}
+    webserver.job_counter += 1
+
+    return jsonify(response)
 
 @webserver.route('/api/state_mean_by_category', methods=['POST'])
 def state_mean_by_category_request():
