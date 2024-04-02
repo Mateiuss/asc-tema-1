@@ -1,8 +1,6 @@
 from app import webserver
 from flask import request, jsonify
-from logging import info
 
-import os
 import json
 
 # Example endpoint definition
@@ -25,18 +23,8 @@ def post_endpoint():
 
 @webserver.route('/api/get_results/<job_id>', methods=['GET'])
 def get_response(job_id):
-    print(f"JobID is {job_id}")
-    # TODO
-    # Check if job_id is valid
     if webserver.job_counter < int(job_id):
         return jsonify({'status': 'error', 'reason': 'Invalid job_id'})
-
-    # Check if job_id is done and return the result
-    #    res = res_for(job_id)
-    #    return jsonify({
-    #        'status': 'done',
-    #        'data': res
-    #    })
 
     if int(job_id) in webserver.tasks_runner.done_jobs:
         with open(f"job_{job_id}.json", "r") as f:
@@ -202,13 +190,36 @@ def index():
 
 @webserver.route('/api/graceful_shutdown', methods=['POST'])
 def graceful_shutdown():
-    webserver.thread_pool.graceful_shutdown = True
-
-    for _ in range(webserver.thread_pool.num_threads):
-        webserver.thread_pool.task_queue.put((None, None))
-        webserver.thread_pool.task_queue_semaphore.release()
+    if webserver.tasks_runner.graceful_shutdown:
+        return jsonify({"status": "shutdown"})
+    
+    webserver.tasks_runner.close()
 
     return jsonify({"status": "success"})
+
+@webserver.route('/api/jobs', methods=['GET'])
+def get_jobs():
+    if webserver.tasks_runner.graceful_shutdown:
+        return jsonify({"status": "shutdown"})
+    
+    ans = {}
+    ans['status'] = 'done'
+    ans['data'] = []
+
+    for i in range(webserver.job_counter):
+        if i in webserver.tasks_runner.done_jobs:
+            ans['data'].append({f'job_id_{i}': 'done'})
+        else:
+            ans['data'].append({f'job_id_{i}': 'running'})
+
+    return jsonify(ans)
+
+@webserver.route('/api/num_jobs', methods=['GET'])
+def get_num_jobs():
+    if webserver.tasks_runner.graceful_shutdown:
+        return jsonify({"status": "shutdown"})
+    
+    return jsonify({"num_jobs": webserver.tasks_runner.task_queue.qsize()})
 
 def get_defined_routes():
     routes = []

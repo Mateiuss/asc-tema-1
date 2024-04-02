@@ -23,11 +23,26 @@ class ThreadPool:
         self.task_queue_semaphore = Semaphore(0)
         self.done_jobs = set()
         self.graceful_shutdown = False
+        self.threads = []
 
     def start(self):
         for _ in range(self.num_threads):
             thread = TaskRunner(self)
+            self.threads.append(thread)
             thread.start()
+
+    def close(self):
+        if self.graceful_shutdown:
+            return
+
+        self.graceful_shutdown = True
+
+        for _ in range(self.num_threads):
+            self.task_queue.put((None, None))
+            self.task_queue_semaphore.release()
+
+        for thread in self.threads:
+            thread.join()
 
 def key_to_string(data: dict) -> dict:
         ans = {}
