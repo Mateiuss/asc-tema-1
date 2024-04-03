@@ -23,6 +23,9 @@ def post_endpoint():
 
 @webserver.route('/api/get_results/<job_id>', methods=['GET'])
 def get_response(job_id):
+    if webserver.tasks_runner.is_shutdown():
+        return jsonify({"status": "shutdown"})
+
     if webserver.job_counter < int(job_id):
         return jsonify({'status': 'error', 'reason': 'Invalid job_id'})
 
@@ -39,7 +42,7 @@ def get_response(job_id):
 
 @webserver.route('/api/states_mean', methods=['POST'])
 def states_mean_request():
-    if webserver.tasks_runner.graceful_shutdown:
+    if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
 
     webserver.tasks_runner.task_queue.put((webserver.job_counter,
@@ -54,7 +57,7 @@ def states_mean_request():
 
 @webserver.route('/api/state_mean', methods=['POST'])
 def state_mean_request():
-    if webserver.tasks_runner.graceful_shutdown:
+    if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
 
     webserver.tasks_runner.task_queue.put((webserver.job_counter,
@@ -70,7 +73,7 @@ def state_mean_request():
 
 @webserver.route('/api/best5', methods=['POST'])
 def best5_request():
-    if webserver.tasks_runner.graceful_shutdown:
+    if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
     webserver.tasks_runner.task_queue.put((webserver.job_counter,
@@ -85,7 +88,7 @@ def best5_request():
 
 @webserver.route('/api/worst5', methods=['POST'])
 def worst5_request():
-    if webserver.tasks_runner.graceful_shutdown:
+    if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
     webserver.tasks_runner.task_queue.put((webserver.job_counter,
@@ -100,7 +103,7 @@ def worst5_request():
 
 @webserver.route('/api/global_mean', methods=['POST'])
 def global_mean_request():
-    if webserver.tasks_runner.graceful_shutdown:
+    if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
     webserver.tasks_runner.task_queue.put((webserver.job_counter,
@@ -115,7 +118,7 @@ def global_mean_request():
 
 @webserver.route('/api/diff_from_mean', methods=['POST'])
 def diff_from_mean_request():
-    if webserver.tasks_runner.graceful_shutdown:
+    if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
     webserver.tasks_runner.task_queue.put((webserver.job_counter,
@@ -130,7 +133,7 @@ def diff_from_mean_request():
 
 @webserver.route('/api/state_diff_from_mean', methods=['POST'])
 def state_diff_from_mean_request():
-    if webserver.tasks_runner.graceful_shutdown:
+    if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
     webserver.tasks_runner.task_queue.put((webserver.job_counter,
@@ -145,7 +148,7 @@ def state_diff_from_mean_request():
 
 @webserver.route('/api/mean_by_category', methods=['POST'])
 def mean_by_category_request():
-    if webserver.tasks_runner.graceful_shutdown:
+    if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
     webserver.tasks_runner.task_queue.put((webserver.job_counter,
@@ -160,7 +163,7 @@ def mean_by_category_request():
 
 @webserver.route('/api/state_mean_by_category', methods=['POST'])
 def state_mean_by_category_request():
-    if webserver.tasks_runner.graceful_shutdown:
+    if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
     webserver.tasks_runner.task_queue.put((webserver.job_counter,
@@ -190,7 +193,7 @@ def index():
 
 @webserver.route('/api/graceful_shutdown', methods=['POST'])
 def graceful_shutdown():
-    if webserver.tasks_runner.graceful_shutdown:
+    if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
     webserver.tasks_runner.close()
@@ -199,7 +202,7 @@ def graceful_shutdown():
 
 @webserver.route('/api/jobs', methods=['GET'])
 def get_jobs():
-    if webserver.tasks_runner.graceful_shutdown:
+    if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
     ans = {}
@@ -216,7 +219,7 @@ def get_jobs():
 
 @webserver.route('/api/num_jobs', methods=['GET'])
 def get_num_jobs():
-    if webserver.tasks_runner.graceful_shutdown:
+    if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
     return jsonify({"num_jobs": webserver.tasks_runner.task_queue.qsize()})

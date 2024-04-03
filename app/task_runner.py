@@ -1,5 +1,5 @@
 from queue import Queue
-from threading import Thread, Event, Semaphore
+from threading import Thread, Lock, Semaphore
 import time
 import os
 import json
@@ -24,6 +24,7 @@ class ThreadPool:
         self.done_jobs = set()
         self.graceful_shutdown = False
         self.threads = []
+        self.lock = Lock()
 
     def start(self):
         for _ in range(self.num_threads):
@@ -31,11 +32,20 @@ class ThreadPool:
             self.threads.append(thread)
             thread.start()
 
+    def is_shutdown(self):
+        self.lock.acquire()
+        ans = self.graceful_shutdown
+        self.lock.release()
+        return ans
+
     def close(self):
+        self.lock.acquire()
         if self.graceful_shutdown:
+            self.lock.release()
             return
 
         self.graceful_shutdown = True
+        self.lock.release()
 
         for _ in range(self.num_threads):
             self.task_queue.put((None, None))
