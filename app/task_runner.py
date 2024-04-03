@@ -52,7 +52,7 @@ class ThreadPool:
         self.lock.release()
 
         for _ in range(self.num_threads):
-            self.task_queue.put((None, None))
+            self.task_queue.put((None, None, None))
             self.task_queue_semaphore.release()
 
         self.logger.info("Waiting for threads to finish")
@@ -104,7 +104,7 @@ class TaskRunner(Thread):
             result = key_to_string(result)
 
             # Save the result to disk
-            with open(f"job_{job_id}.json", "w") as f:
+            with open(f"results/job_{job_id}.json", "w") as f:
                 f.write(json.dumps(result))
 
             # Mark the job as done

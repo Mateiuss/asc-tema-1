@@ -4,6 +4,10 @@ from app.task_runner import ThreadPool
 from logging.handlers import RotatingFileHandler
 from time import gmtime, strftime
 import logging
+import os
+
+if not os.path.exists("results"):
+    os.mkdir("results")
 
 class UTCFormatter(logging.Formatter):
     def formatTime(self, record, datefmt=None):

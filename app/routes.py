@@ -34,7 +34,7 @@ def get_response(job_id):
         return jsonify({'status': 'error', 'reason': 'Invalid job_id'})
 
     if int(job_id) in webserver.tasks_runner.done_jobs:
-        with open(f"job_{job_id}.json", "r") as f:
+        with open(f"results/job_{job_id}.json", "r") as f:
             res = json.load(f)
             return jsonify({
                 'status': 'done',
