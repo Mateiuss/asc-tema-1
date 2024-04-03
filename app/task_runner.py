@@ -5,7 +5,7 @@ import os
 import json
 
 class ThreadPool:
-    def __init__(self):
+    def __init__(self, logger):
         # You must implement a ThreadPool of TaskRunners
         # Your ThreadPool should check if an environment variable TP_NUM_OF_THREADS is defined
         # If the env var is defined, that is the number of threads to be used by the thread pool
@@ -18,7 +18,8 @@ class ThreadPool:
             self.num_threads = os.environ.get('TP_NUM_OF_THREADS')
         else:
             self.num_threads = os.cpu_count()
-        
+
+        self.logger = logger
         self.task_queue = Queue()
         self.task_queue_semaphore = Semaphore(0)
         self.done_jobs = set()
@@ -27,6 +28,7 @@ class ThreadPool:
         self.lock = Lock()
 
     def start(self):
+        self.logger.info("Starting ThreadPool")
         for _ in range(self.num_threads):
             thread = TaskRunner(self)
             self.threads.append(thread)
@@ -39,9 +41,11 @@ class ThreadPool:
         return ans
 
     def close(self):
+        self.logger.info("Closing ThreadPool")
         self.lock.acquire()
         if self.graceful_shutdown:
             self.lock.release()
+            self.logger.info("ThreadPool already closed")
             return
 
         self.graceful_shutdown = True
@@ -51,6 +55,7 @@ class ThreadPool:
             self.task_queue.put((None, None))
             self.task_queue_semaphore.release()
 
+        self.logger.info("Waiting for threads to finish")
         for thread in self.threads:
             thread.join()
 
@@ -90,6 +95,7 @@ class TaskRunner(Thread):
 
             # Shutdown called
             if job_id is None:
+                self.thread_pool.logger.info("Shutting down thread")
                 break
 
             # Execute the job and turn keys into strings

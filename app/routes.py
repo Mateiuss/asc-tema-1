@@ -3,9 +3,12 @@ from flask import request, jsonify
 
 import json
 
+logger = webserver.logger
+
 # Example endpoint definition
 @webserver.route('/api/post_endpoint', methods=['POST'])
 def post_endpoint():
+    logger.info("Received POST request")
     if request.method == 'POST':
         # Assuming the request contains JSON data
         data = request.json
@@ -23,6 +26,7 @@ def post_endpoint():
 
 @webserver.route('/api/get_results/<job_id>', methods=['GET'])
 def get_response(job_id):
+    logger.info(f"Received GET request for job_id {job_id}")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
 
@@ -42,6 +46,7 @@ def get_response(job_id):
 
 @webserver.route('/api/states_mean', methods=['POST'])
 def states_mean_request():
+    logger.info("Received POST request for states_mean")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
 
@@ -57,6 +62,7 @@ def states_mean_request():
 
 @webserver.route('/api/state_mean', methods=['POST'])
 def state_mean_request():
+    logger.info("Received POST request for state_mean")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
 
@@ -73,6 +79,7 @@ def state_mean_request():
 
 @webserver.route('/api/best5', methods=['POST'])
 def best5_request():
+    logger.info("Received POST request for best5")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
@@ -88,6 +95,7 @@ def best5_request():
 
 @webserver.route('/api/worst5', methods=['POST'])
 def worst5_request():
+    logger.info("Received POST request for worst5")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
@@ -103,6 +111,7 @@ def worst5_request():
 
 @webserver.route('/api/global_mean', methods=['POST'])
 def global_mean_request():
+    logger.info("Received POST request for global_mean")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
@@ -118,6 +127,7 @@ def global_mean_request():
 
 @webserver.route('/api/diff_from_mean', methods=['POST'])
 def diff_from_mean_request():
+    logger.info("Received POST request for diff_from_mean")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
@@ -133,6 +143,7 @@ def diff_from_mean_request():
 
 @webserver.route('/api/state_diff_from_mean', methods=['POST'])
 def state_diff_from_mean_request():
+    logger.info("Received POST request for state_diff_from_mean")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
@@ -148,6 +159,7 @@ def state_diff_from_mean_request():
 
 @webserver.route('/api/mean_by_category', methods=['POST'])
 def mean_by_category_request():
+    logger.info("Received POST request for mean_by_category")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
@@ -163,6 +175,7 @@ def mean_by_category_request():
 
 @webserver.route('/api/state_mean_by_category', methods=['POST'])
 def state_mean_by_category_request():
+    logger.info("Received POST request for state_mean_by_category")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
@@ -180,6 +193,7 @@ def state_mean_by_category_request():
 @webserver.route('/')
 @webserver.route('/index')
 def index():
+    logger.info("Received GET request for index")
     routes = get_defined_routes()
     msg = f"Hello, World!\n Interact with the webserver using one of the defined routes:\n"
 
@@ -193,6 +207,7 @@ def index():
 
 @webserver.route('/api/graceful_shutdown', methods=['POST'])
 def graceful_shutdown():
+    logger.info("Received POST request for graceful_shutdown")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
@@ -202,6 +217,7 @@ def graceful_shutdown():
 
 @webserver.route('/api/jobs', methods=['GET'])
 def get_jobs():
+    logger.info("Received GET request for jobs")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
@@ -219,6 +235,7 @@ def get_jobs():
 
 @webserver.route('/api/num_jobs', methods=['GET'])
 def get_num_jobs():
+    logger.info("Received GET request for num_jobs")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
