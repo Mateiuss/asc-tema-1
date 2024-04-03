@@ -99,7 +99,9 @@ class TaskRunner(Thread):
                 break
 
             # Execute the job and turn keys into strings
-            result = key_to_string(work(request_json))
+            result = work(request_json)
+            self.thread_pool.logger.info(f"TaskRunner {job_id} done")
+            result = key_to_string(result)
 
             # Save the result to disk
             with open(f"job_{job_id}.json", "w") as f:
