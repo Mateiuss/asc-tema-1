@@ -213,7 +213,7 @@ def graceful_shutdown():
     
     webserver.tasks_runner.close()
 
-    return jsonify({"status": "success"})
+    return jsonify({"status": "shutdown"})
 
 @webserver.route('/api/jobs', methods=['GET'])
 def get_jobs():

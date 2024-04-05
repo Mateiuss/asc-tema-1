@@ -1,0 +1,15 @@
+LocationDesc,Question,Data_Value,StratificationCategory1,Stratification1
+Ohio,Percent of adults aged 18 years and older who have obesity,29.4,Income,"$75,000 or greater"
+Washington,Percent of adults who engage in muscle-strengthening activities on 2 or more days a week,40.3,Income,"$75,000 or greater"
+Massachusetts,Percent of adults who engage in muscle-strengthening activities on 2 or more days a week,31.4,Age (years),35 - 44
+New Mexico,Percent of adults aged 18 years and older who have obesity,27.7,Income,"$25,000 - $34,999"
+Indiana,Percent of adults who report consuming vegetables less than one time daily,35.4,Race/Ethnicity,Hispanic
+Kansas,Percent of adults who engage in no leisure-time physical activity,28.7,Age (years),45 - 54
+Wisconsin,Percent of adults who engage in no leisure-time physical activity,24.0,Age (years),55 - 64
+New Hampshire,Percent of adults who engage in muscle-strengthening activities on 2 or more days a week,35.3,Gender,Female
+Ohio,Percent of adults who engage in no leisure-time physical activity,31.6,Race/Ethnicity,"2 or more races"
+Rhode Island,Percent of adults who engage in muscle-strengthening activities on 2 or more days a week,19.7,Income,"Less than $15,000"
+Maryland,Percent of adults who engage in no leisure-time physical activity,38.4,Income,"$15,000 - $24,999"
+Nebraska,Percent of adults who engage in no leisure-time physical activity,31.5,Income,"$15,000 - $24,999"
+Maryland,Percent of adults who engage in no leisure-time physical activity,27.3,Income,"$15,000 - $24,999"
+Kansas,Percent of adults who engage in muscle-strengthening activities on 2 or more days a week,24.75,Gender,Female
