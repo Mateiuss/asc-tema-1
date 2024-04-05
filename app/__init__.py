@@ -20,7 +20,7 @@ webserver.logger = logging.getLogger('server_logger')
 webserver.logger.setLevel(logging.DEBUG)
 
 log_file = 'webserver.log'
-handler = RotatingFileHandler(log_file, maxBytes=1024 * 256, backupCount=3)
+handler = RotatingFileHandler(log_file, maxBytes=1024, backupCount=10)
 handler.setLevel(logging.DEBUG)
 
 formatter = UTCFormatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
