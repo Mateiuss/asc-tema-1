@@ -7,9 +7,6 @@ class TestWebserver(unittest.TestCase):
         # create a data_ingestor on the test csv file
         self.data_ingestor = app.data_ingestor.DataIngestor("unittests/nutrition_unittest.csv")
 
-        # Shutdown the thread pool so that we can test only the functionality
-        app.webserver.tasks_runner.close()
-
     def test_states_mean(self):
         request_json = {'question': 'Percent of adults who engage in no leisure-time physical activity'}
         res = self.data_ingestor.states_mean(request_json)
@@ -59,7 +56,7 @@ class TestWebserver(unittest.TestCase):
         request_json = {'question': 'Percent of adults aged 18 years and older who have obesity'}
         res = self.data_ingestor.diff_from_mean(request_json)
 
-        expected = {'Ohio': -0.85, 'New Mexico': 0.84999999999999}
+        expected = {'Ohio': -0.85, 'New Mexico': 0.85}
 
         d = DeepDiff(res, expected, math_epsilon=0.01)
         self.assertTrue(d == {}, str(d))
@@ -102,6 +99,13 @@ class TestWebserver(unittest.TestCase):
 
         d = DeepDiff(res, expected, math_epsilon=0.01)
         self.assertTrue(d == {}, str(d))
+
+    def test_graceful_shutdown(self):
+        # if graceful_shutdown wouldn't work, the unittests would block forever because the threads are still running
+        with app.webserver.test_client() as client:
+            res = client.post('/api/graceful_shutdown')
+            self.assertEqual(res.status_code, 200)
+            self.assertEqual(res.json, {'status': 'shutdown'})
 
 
 if __name__ == '__main__':
