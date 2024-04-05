@@ -16,7 +16,6 @@ class ThreadPool:
         self.done_jobs = set()
         self.graceful_shutdown = False
         self.threads = []
-        self.lock = Lock()
 
     def start(self):
         self.logger.info("Starting ThreadPool")
@@ -26,21 +25,16 @@ class ThreadPool:
             thread.start()
 
     def is_shutdown(self):
-        self.lock.acquire()
-        ans = self.graceful_shutdown
-        self.lock.release()
-        return ans
+        return self.graceful_shutdown
 
     def close(self):
         self.logger.info("Closing ThreadPool")
-        self.lock.acquire()
+
         if self.graceful_shutdown:
-            self.lock.release()
             self.logger.info("ThreadPool already closed")
             return
 
         self.graceful_shutdown = True
-        self.lock.release()
 
         for _ in range(self.num_threads):
             self.task_queue.put((None, None, None))
