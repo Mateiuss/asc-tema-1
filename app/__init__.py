@@ -3,6 +3,7 @@ from app.data_ingestor import DataIngestor
 from app.task_runner import ThreadPool
 from logging.handlers import RotatingFileHandler
 from time import gmtime, strftime
+from threading import Lock
 import logging
 import os
 
@@ -35,5 +36,7 @@ webserver.tasks_runner.start()
 webserver.data_ingestor = DataIngestor("./nutrition_activity_obesity_usa_subset.csv")
 
 webserver.job_counter = 1
+
+webserver.job_lock = Lock()
 
 from app import routes

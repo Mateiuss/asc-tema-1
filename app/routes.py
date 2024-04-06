@@ -12,7 +12,7 @@ def post_endpoint():
     if request.method == 'POST':
         # Assuming the request contains JSON data
         data = request.json
-        print(f"got data in post {data}")
+        # print(f"got data in post {data}")
 
         # Process the received data
         # For demonstration purposes, just echoing back the received data
@@ -30,17 +30,21 @@ def get_response(job_id):
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
 
+    webserver.job_lock.acquire()
     if webserver.job_counter < int(job_id):
+        webserver.job_lock.release()
         return jsonify({'status': 'error', 'reason': 'Invalid job_id'})
 
     if int(job_id) in webserver.tasks_runner.done_jobs:
         with open(f"results/job_{job_id}.json", "r") as f:
             res = json.load(f)
+            webserver.job_lock.release()
             return jsonify({
                 'status': 'done',
                 'data': res
             })
 
+    webserver.job_lock.release()
     # If not, return running status
     return jsonify({'status': 'running'})
 
@@ -50,6 +54,7 @@ def states_mean_request():
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
 
+    webserver.job_lock.acquire()
     webserver.tasks_runner.task_queue.put((webserver.job_counter,
                                            request.get_json(),
                                            lambda request_json: webserver.data_ingestor.states_mean(request_json)))
@@ -57,6 +62,7 @@ def states_mean_request():
     
     response = {"job_id": webserver.job_counter}
     webserver.job_counter += 1
+    webserver.job_lock.release()
 
     return jsonify(response)
 
@@ -66,6 +72,7 @@ def state_mean_request():
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
 
+    webserver.job_lock.acquire()
     webserver.tasks_runner.task_queue.put((webserver.job_counter,
                                             request.get_json(),
                                             lambda request_json: webserver.data_ingestor.state_mean(request_json)))
@@ -73,6 +80,7 @@ def state_mean_request():
     
     response = {"job_id": webserver.job_counter}
     webserver.job_counter += 1
+    webserver.job_lock.release()
 
     return jsonify(response)
 
@@ -83,6 +91,7 @@ def best5_request():
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
+    webserver.job_lock.acquire()
     webserver.tasks_runner.task_queue.put((webserver.job_counter,
                                             request.get_json(),
                                             lambda request_json: webserver.data_ingestor.best5(request_json)))
@@ -90,6 +99,7 @@ def best5_request():
 
     response = {"job_id": webserver.job_counter}
     webserver.job_counter += 1
+    webserver.job_lock.release()
 
     return jsonify(response)
 
@@ -99,6 +109,7 @@ def worst5_request():
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
+    webserver.job_lock.acquire()
     webserver.tasks_runner.task_queue.put((webserver.job_counter,
                                            request.get_json(),
                                            lambda request_json: webserver.data_ingestor.worst5(request_json)))
@@ -106,6 +117,7 @@ def worst5_request():
 
     response = {"job_id": webserver.job_counter}
     webserver.job_counter += 1
+    webserver.job_lock.release()
 
     return jsonify(response)
 
@@ -115,6 +127,7 @@ def global_mean_request():
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
+    webserver.job_lock.acquire()
     webserver.tasks_runner.task_queue.put((webserver.job_counter,
                                             request.get_json(),
                                             lambda request_json: webserver.data_ingestor.global_mean(request_json)))
@@ -122,6 +135,7 @@ def global_mean_request():
 
     response = {"job_id": webserver.job_counter}
     webserver.job_counter += 1
+    webserver.job_lock.release()
 
     return jsonify(response)
 
@@ -131,6 +145,7 @@ def diff_from_mean_request():
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
+    webserver.job_lock.acquire()
     webserver.tasks_runner.task_queue.put((webserver.job_counter,
                                             request.get_json(),
                                             lambda request_json: webserver.data_ingestor.diff_from_mean(request_json)))
@@ -138,6 +153,7 @@ def diff_from_mean_request():
 
     response = {"job_id": webserver.job_counter}
     webserver.job_counter += 1
+    webserver.job_lock.release()
 
     return jsonify(response)
 
@@ -147,6 +163,7 @@ def state_diff_from_mean_request():
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
+    webserver.job_lock.acquire()
     webserver.tasks_runner.task_queue.put((webserver.job_counter,
                                              request.get_json(),
                                              lambda request_json: webserver.data_ingestor.state_diff_from_mean(request_json)))
@@ -154,6 +171,7 @@ def state_diff_from_mean_request():
 
     response = {"job_id": webserver.job_counter}
     webserver.job_counter += 1
+    webserver.job_lock.release()
 
     return jsonify(response)
 
@@ -163,6 +181,7 @@ def mean_by_category_request():
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
+    webserver.job_lock.acquire()
     webserver.tasks_runner.task_queue.put((webserver.job_counter,
                                             request.get_json(),
                                             lambda request_json: webserver.data_ingestor.mean_by_category(request_json)))
@@ -170,6 +189,7 @@ def mean_by_category_request():
 
     response = {"job_id": webserver.job_counter}
     webserver.job_counter += 1
+    webserver.job_lock.release()
 
     return jsonify(response)
 
@@ -179,6 +199,7 @@ def state_mean_by_category_request():
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
     
+    webserver.job_lock.acquire()
     webserver.tasks_runner.task_queue.put((webserver.job_counter,
                                             request.get_json(),
                                             lambda request_json: webserver.data_ingestor.state_mean_by_category(request_json)))
@@ -186,6 +207,7 @@ def state_mean_by_category_request():
 
     response = {"job_id": webserver.job_counter}
     webserver.job_counter += 1
+    webserver.job_lock.release()
 
     return jsonify(response)
 
@@ -225,11 +247,13 @@ def get_jobs():
     ans['status'] = 'done'
     ans['data'] = []
 
+    webserver.job_lock.acquire()
     for i in range(webserver.job_counter):
         if i in webserver.tasks_runner.done_jobs:
             ans['data'].append({f'job_id_{i}': 'done'})
         else:
             ans['data'].append({f'job_id_{i}': 'running'})
+    webserver.job_lock.release()
 
     return jsonify(ans)
 

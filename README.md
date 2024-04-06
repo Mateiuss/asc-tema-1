@@ -50,6 +50,30 @@ Tema mi se pare utila pentru a te invata sa lucrezi cu thread-uri/sincronizare i
 
 Implementarea mi se pare eficienta. Thread-urile sunt folosite la maximum (imediat ce primesc un job), verificarea faptului ca un job a fost terminat se face repede pentru ca ma folosesc de un set pentru a face asta.
 
+Pentru job_counter am folosit un lock care sa blocheze accesarea concomitenta a variabilei de catre mai multe thread-uri ale rutelor. Se poate observa aceasta implementare in urmatorul exemplu din state_mean_by_category:
+
+```python
+# lock pe job_counter
+webserver.job_lock.acquire()
+
+# adaugare job in queue
+webserver.tasks_runner.task_queue.put((
+  webserver.job_counter,
+  request.get_json(),
+  lambda request_json: webserver.data_ingestor.state_mean_by_category(request_json)))
+
+# anuntare semafor ca s-a adaugat un job nou
+webserver.tasks_runner.task_queue_semaphore.release()
+
+# generarea raspunsului
+response = {"job_id": webserver.job_counter}
+
+webserver.job_counter += 1
+
+# eliberarea lock-ului
+webserver.job_lock.release()
+```
+
 ## Implementare
 
 Intregul enunt al temei a fost implementat.
