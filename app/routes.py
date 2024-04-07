@@ -6,14 +6,14 @@ import json
 from flask import request, jsonify
 from app import webserver
 
-logger = webserver.logger
+LOGGER = webserver.logger
 
 @webserver.route('/api/get_results/<job_id>', methods=['GET'])
 def get_response(job_id):
     """
     This function is called when the user wants to get the results of a job.
     """
-    logger.info('Received GET request for job_id %s', job_id)
+    LOGGER.info('Received GET request for job_id %s', job_id)
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
 
@@ -29,7 +29,6 @@ def get_response(job_id):
                     'data': res
                 })
 
-        # If not, return running status
         return jsonify({'status': 'running'})
 
 @webserver.route('/api/states_mean', methods=['POST'])
@@ -37,7 +36,7 @@ def states_mean_request():
     """
     This function is called when the user wants to get the mean of all states.
     """
-    logger.info("Received POST request for states_mean")
+    LOGGER.info("Received POST request for states_mean")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
 
@@ -57,7 +56,7 @@ def state_mean_request():
     """
     This function is called when the user wants to get the mean of a state
     """
-    logger.info("Received POST request for state_mean")
+    LOGGER.info("Received POST request for state_mean")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
 
@@ -77,7 +76,7 @@ def best5_request():
     """
     This function is called when the user wants to get the best 5 states by mean.
     """
-    logger.info("Received POST request for best5")
+    LOGGER.info("Received POST request for best5")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
 
@@ -97,7 +96,7 @@ def worst5_request():
     """
     This function is called when the user wants to get the worst 5 states by mean.
     """
-    logger.info("Received POST request for worst5")
+    LOGGER.info("Received POST request for worst5")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
 
@@ -117,7 +116,7 @@ def global_mean_request():
     """
     This function is called when the user wants to get the global mean.
     """
-    logger.info("Received POST request for global_mean")
+    LOGGER.info("Received POST request for global_mean")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
 
@@ -138,7 +137,7 @@ def diff_from_mean_request():
     This function is called when the user wants to get the difference from
     the global mean of all states.
     """
-    logger.info("Received POST request for diff_from_mean")
+    LOGGER.info("Received POST request for diff_from_mean")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
 
@@ -159,7 +158,7 @@ def state_diff_from_mean_request():
     This function is called when the user wants to get the difference from
     the global mean of a state.
     """
-    logger.info("Received POST request for state_diff_from_mean")
+    LOGGER.info("Received POST request for state_diff_from_mean")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
 
@@ -180,7 +179,7 @@ def mean_by_category_request():
     This function is called when the user wants to get the mean of each state
     by every category.
     """
-    logger.info("Received POST request for mean_by_category")
+    LOGGER.info("Received POST request for mean_by_category")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
 
@@ -201,7 +200,7 @@ def state_mean_by_category_request():
     This function is called when the user wants to get the mean of a given state
     by every category.
     """
-    logger.info("Received POST request for state_mean_by_category")
+    LOGGER.info("Received POST request for state_mean_by_category")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
 
@@ -223,7 +222,7 @@ def index():
     """
     This is the index route for the webserver.
     """
-    logger.info("Received GET request for index")
+    LOGGER.info("Received GET request for index")
     routes = get_defined_routes()
     msg = "Hello, World!\n Interact with the webserver using one of the defined routes:\n"
 
@@ -237,7 +236,7 @@ def graceful_shutdown():
     """
     This function is called when the user wants to shutdown the thread pool.
     """
-    logger.info("Received POST request for graceful_shutdown")
+    LOGGER.info("Received POST request for graceful_shutdown")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
 
@@ -250,7 +249,7 @@ def get_jobs():
     """
     This function is called when the user wants to get the status of the jobs.
     """
-    logger.info("Received GET request for jobs")
+    LOGGER.info("Received GET request for jobs")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
 
@@ -273,7 +272,7 @@ def get_num_jobs():
     This function is called when the user wants to get the number of jobs
     in the queue.
     """
-    logger.info("Received GET request for num_jobs")
+    LOGGER.info("Received GET request for num_jobs")
     if webserver.tasks_runner.is_shutdown():
         return jsonify({"status": "shutdown"})
 
