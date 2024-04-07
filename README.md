@@ -86,6 +86,7 @@ Am invatat sa ma obisnuiesc destul de repede cu un framework si sa incerc sa gas
 * https://stackoverflow.com/questions/67528668/flask-what-is-the-use-of-init-py-vs-run-py-and-are-blueprints-standard-thi
 * https://flask.palletsprojects.com/en/3.0.x/reqcontext/
 * https://stackoverflow.com/questions/1896918/running-unittest-with-typical-test-directory-structure
+* https://stackoverflow.com/questions/9885217/in-python-if-i-return-inside-a-with-block-will-the-file-still-close
 
 ## Git
 
