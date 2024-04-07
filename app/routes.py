@@ -2,10 +2,9 @@
 This file contains the definition of the endpoints for the webserver.
 """
 
-from app import webserver
-from flask import request, jsonify
-
 import json
+from flask import request, jsonify
+from app import webserver
 
 logger = webserver.logger
 
@@ -23,7 +22,7 @@ def get_response(job_id):
             return jsonify({'status': 'error', 'reason': 'Invalid job_id'})
 
         if int(job_id) in webserver.tasks_runner.done_jobs:
-            with open(f"results/job_{job_id}.json", "r") as f:
+            with open(f"results/job_{job_id}.json", "r", encoding="utf-8") as f:
                 res = json.load(f)
                 return jsonify({
                     'status': 'done',
@@ -45,7 +44,7 @@ def states_mean_request():
     with webserver.job_lock:
         webserver.tasks_runner.task_queue.put((webserver.job_counter,
                                             request.get_json(),
-                                            lambda arg: webserver.data_ingestor.states_mean(arg)))
+                                            webserver.data_ingestor.states_mean))
         webserver.tasks_runner.task_queue_semaphore.release()
 
         response = {"job_id": webserver.job_counter}
@@ -64,8 +63,8 @@ def state_mean_request():
 
     with webserver.job_lock:
         webserver.tasks_runner.task_queue.put((webserver.job_counter,
-                                                request.get_json(),
-                                                lambda arg: webserver.data_ingestor.state_mean(arg)))
+                                            request.get_json(),
+                                            webserver.data_ingestor.state_mean))
         webserver.tasks_runner.task_queue_semaphore.release()
 
         response = {"job_id": webserver.job_counter}
@@ -85,7 +84,7 @@ def best5_request():
     with webserver.job_lock:
         webserver.tasks_runner.task_queue.put((webserver.job_counter,
                                                 request.get_json(),
-                                                lambda arg: webserver.data_ingestor.best5(arg)))
+                                                webserver.data_ingestor.best5))
         webserver.tasks_runner.task_queue_semaphore.release()
 
         response = {"job_id": webserver.job_counter}
@@ -105,7 +104,7 @@ def worst5_request():
     with webserver.job_lock:
         webserver.tasks_runner.task_queue.put((webserver.job_counter,
                                             request.get_json(),
-                                            lambda arg: webserver.data_ingestor.worst5(arg)))
+                                            webserver.data_ingestor.worst5))
         webserver.tasks_runner.task_queue_semaphore.release()
 
         response = {"job_id": webserver.job_counter}
@@ -124,8 +123,8 @@ def global_mean_request():
 
     with webserver.job_lock:
         webserver.tasks_runner.task_queue.put((webserver.job_counter,
-                                                request.get_json(),
-                                                lambda arg: webserver.data_ingestor.global_mean(arg)))
+                                            request.get_json(),
+                                            webserver.data_ingestor.global_mean))
         webserver.tasks_runner.task_queue_semaphore.release()
 
         response = {"job_id": webserver.job_counter}
@@ -145,8 +144,8 @@ def diff_from_mean_request():
 
     with webserver.job_lock:
         webserver.tasks_runner.task_queue.put((webserver.job_counter,
-                                            request.get_json(),
-                                            lambda arg: webserver.data_ingestor.diff_from_mean(arg)))
+                                        request.get_json(),
+                                        webserver.data_ingestor.diff_from_mean))
         webserver.tasks_runner.task_queue_semaphore.release()
 
         response = {"job_id": webserver.job_counter}
@@ -166,8 +165,8 @@ def state_diff_from_mean_request():
 
     with webserver.job_lock:
         webserver.tasks_runner.task_queue.put((webserver.job_counter,
-                                        request.get_json(),
-                                        lambda arg: webserver.data_ingestor.state_diff_from_mean(arg)))
+                                    request.get_json(),
+                                    webserver.data_ingestor.state_diff_from_mean))
         webserver.tasks_runner.task_queue_semaphore.release()
 
         response = {"job_id": webserver.job_counter}
@@ -187,13 +186,12 @@ def mean_by_category_request():
 
     with webserver.job_lock:
         webserver.tasks_runner.task_queue.put((webserver.job_counter,
-                                            request.get_json(),
-                                            lambda arg: webserver.data_ingestor.mean_by_category(arg)))
+                                        request.get_json(),
+                                        webserver.data_ingestor.mean_by_category))
         webserver.tasks_runner.task_queue_semaphore.release()
 
         response = {"job_id": webserver.job_counter}
         webserver.job_counter += 1
-        webserver.job_lock.release()
 
         return jsonify(response)
 
@@ -209,8 +207,8 @@ def state_mean_by_category_request():
 
     with webserver.job_lock:
         webserver.tasks_runner.task_queue.put((webserver.job_counter,
-                                    request.get_json(),
-                                    lambda arg: webserver.data_ingestor.state_mean_by_category(arg)))
+                                request.get_json(),
+                                webserver.data_ingestor.state_mean_by_category))
         webserver.tasks_runner.task_queue_semaphore.release()
 
         response = {"job_id": webserver.job_counter}
@@ -227,12 +225,9 @@ def index():
     """
     logger.info("Received GET request for index")
     routes = get_defined_routes()
-    msg = f"Hello, World!\n Interact with the webserver using one of the defined routes:\n"
+    msg = "Hello, World!\n Interact with the webserver using one of the defined routes:\n"
 
-    # Display each route as a separate HTML <p> tag
-    paragraphs = ""
-    for route in routes:
-        paragraphs += f"<p>{route}</p>"
+    paragraphs = '\n'.join([f"<p>{route}</p>" for route in routes])
 
     msg += paragraphs
     return msg
@@ -285,6 +280,9 @@ def get_num_jobs():
     return jsonify({"num_jobs": webserver.tasks_runner.task_queue.qsize()})
 
 def get_defined_routes():
+    """
+    This function returns all the defined routes in the webserver.
+    """
     routes = []
     for rule in webserver.url_map.iter_rules():
         methods = ', '.join(rule.methods)
