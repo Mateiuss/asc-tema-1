@@ -10,9 +10,9 @@ import sys
 try:
     from io import StringIO
 except:
-    from StringIO import StringIO
+    from StringIO import StringIO # type: ignore
 
-import pylint.lint
+import pylint.lint # type: ignore
 
 from deepdiff import DeepDiff
 
